@@ -1,5 +1,7 @@
 const UserService = require("../services/UserService");
 const JwtService = require("../services/JwtService");
+const User = require("../models/UserModel");
+const fs = require("fs");
 
 const createUser = async (req, res) => {
   try {
@@ -34,12 +36,8 @@ const loginUser = async (req, res) => {
       });
     }
     const response = await UserService.loginUser(req.body);
-    const { refresh_token, ...newResponse } = response;
-    res.cookie("refresh_token", refresh_token, {
-      httpOnly: true,
-      withCredentials: true,
-    });
-    return res.status(200).json(newResponse);
+
+    return res.status(200).json(response);
   } catch (e) {
     return res.status(404).json({
       message: e,
@@ -50,13 +48,32 @@ const loginUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    const data = req.body;
+    let data = req.body;
     if (!userId) {
       return res.status(200).json({
         status: "OK",
         message: "The userId is required",
       });
     }
+
+    const checkUser = await User.findOne({
+      _id: userId,
+    });
+    if (checkUser === null) {
+      resolve({
+        status: "ERROR",
+        message: "The user is not existed",
+      });
+    }
+
+    if (req.files["avatar"]) {
+      if (checkUser.avatar) {
+        fs.unlinkSync(`uploads/avatar/${checkUser.avatar}`);
+      }
+      const avatar = req.files["avatar"][0].filename;
+      data = { ...data, avatar };
+    }
+
     const response = await UserService.updateUser(userId, data);
     return res.status(200).json(response);
   } catch (e) {
@@ -115,10 +132,11 @@ const getUser = async (req, res) => {
 
 const refreshToken = async (req, res) => {
   try {
-    const token = req.cookies.refresh_token;
+    const token = req.headers.token.split(" ")[1];
+    console.log("token", token);
     if (!token) {
       return res.status(200).json({
-        status: "OK",
+        status: "ERROR",
         message: "The token is required",
       });
     }

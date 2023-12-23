@@ -2,8 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const routes = require("./routes/main");
 const bodyParser = require("body-parser");
-const dotenv = require("dotenv").config();
-const cookieParser = require("cookie-parser");
+const dotenv = require("dotenv");
+dotenv.config();
 const cors = require("cors");
 
 const app = express();
@@ -16,9 +16,8 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
-app.use(bodyParser.json());
-app.use(cookieParser());
+app.use("/api", express.static("uploads"));
+app.use(bodyParser.json({ limit: "50mb" }));
 
 routes(app);
 

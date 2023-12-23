@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
     email: { type: String },
     address: { type: String },
     avatar: { type: String },
+    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
   },
   {
     timestamps: true,

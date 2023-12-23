@@ -1,7 +1,9 @@
 const Document = require("../models/DocumentModel");
+const Review = require("../models/ReviewModel");
+const User = require("../models/UserModel");
 
 const createDocument = (newDoc) => {
-  const { title, author, image, type, rating, description } = newDoc;
+  const { title, author, image, type, description, data, down } = newDoc;
   return new Promise(async (resolve, reject) => {
     try {
       const checkDoc = await Document.findOne({
@@ -18,8 +20,9 @@ const createDocument = (newDoc) => {
         author,
         image,
         type,
-        rating,
         description,
+        data,
+        down,
       });
       if (createdDoc) {
         resolve({
@@ -37,15 +40,6 @@ const createDocument = (newDoc) => {
 const updateDocument = (id, data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkDoc = await Document.findOne({
-        _id: id,
-      });
-      if (checkDoc === null) {
-        resolve({
-          status: "ERROR",
-          message: "The document is not existed",
-        });
-      }
       const updatedDoc = await Document.findByIdAndUpdate(id, data, {
         new: true,
       });
@@ -65,16 +59,21 @@ const updateDocument = (id, data) => {
 const deleteDocument = (id) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkDoc = await Document.findOne({
-        _id: id,
-      });
-      if (checkDoc === null) {
-        resolve({
-          status: "ERROR",
-          message: "The document is not existed",
-        });
-      }
+      const documentReviews = await Review.find({ document: id });
+
+      await Review.deleteMany({ document: id });
+
+      await User.updateMany(
+        { reviews: { $in: documentReviews.map((review) => review._id) } },
+        {
+          $pull: {
+            reviews: { $in: documentReviews.map((review) => review._id) },
+          },
+        }
+      );
+
       await Document.findByIdAndDelete(id);
+
       resolve({
         status: "OK",
         message: "Delete document SUCCESS",
@@ -85,7 +84,7 @@ const deleteDocument = (id) => {
   });
 };
 
-const getAll = (page = 1, limit = 10, type, title, sortBy) => {
+const getAll = (page = 1, limit, type, title, sortBy) => {
   return new Promise(async (resolve, reject) => {
     try {
       const query = {};
@@ -114,7 +113,7 @@ const getAll = (page = 1, limit = 10, type, title, sortBy) => {
         status: "OK",
         message: "Get documents SUCCESS",
         currentPage: page,
-        totalPages: Math.ceil(totalDocs / limit),
+        total: totalDocs,
         data: allDocs,
       });
     } catch (e) {

@@ -1,6 +1,8 @@
 const User = require("../models/UserModel");
 const bcrypt = require("bcrypt");
 const { generalAccessToken, generalRefreshToken } = require("./JwtService");
+const Review = require("../models/ReviewModel");
+const Document = require("../models/DocumentModel");
 
 const createUser = (newUser) => {
   const { userName, password, fullName, email, address, avatar } = newUser;
@@ -81,22 +83,13 @@ const loginUser = (userLogin) => {
 const updateUser = (id, data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      const checkUser = await User.findOne({
-        _id: id,
-      });
-      if (checkUser === null) {
-        resolve({
-          status: "OK",
-          message: "The user account not exist",
-        });
-      }
       const updatedUser = await User.findByIdAndUpdate(id, data, {
         new: true,
       });
 
       resolve({
         status: "OK",
-        message: "Update success",
+        message: "Update user success",
         data: updatedUser,
       });
     } catch (e) {
@@ -118,7 +111,16 @@ const deleteUser = (id) => {
         });
       }
 
-      await User.findByIdAndDelete(id);
+      const userReviews = await Review.find({ user: id });
+
+      await Review.deleteMany({ user: id });
+
+      await Document.updateOne(
+        { reviews: { $in: userReviews.map((review) => review._id) } },
+        { $pull: { reviews: { $in: userReviews.map((review) => review._id) } } }
+      );
+
+      await User.deleteOne({ _id: id });
 
       resolve({
         status: "OK",
