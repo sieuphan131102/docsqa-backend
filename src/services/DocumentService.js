@@ -105,7 +105,8 @@ const getAll = (page = 1, limit, type, title, sortBy) => {
       const allDocs = await Document.find(query)
         .sort(sortOptions)
         .limit(Number(limit))
-        .skip(startIndex);
+        .skip(startIndex)
+        .populate("reviews");
 
       const totalDocs = await Document.countDocuments(query);
 

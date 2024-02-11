@@ -92,6 +92,21 @@ const deleteUser = async (req, res) => {
         message: "The userId is required",
       });
     }
+
+    const checkUser = await User.findOne({
+      _id: userId,
+    });
+    if (checkUser === null) {
+      return res.status(200).json({
+        status: "ERROR",
+        message: "The user is not existed",
+      });
+    }
+
+    if (checkUser.avatar) {
+      fs.unlinkSync(`uploads/avatar/${checkUser.avatar}`);
+    }
+
     const response = await UserService.deleteUser(userId);
     return res.status(200).json(response);
   } catch (e) {

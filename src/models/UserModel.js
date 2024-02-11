@@ -4,11 +4,11 @@ const userSchema = new mongoose.Schema(
   {
     userName: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    fullName: { type: String },
-    isAdmin: { type: Boolean, default: false, required: true },
-    email: { type: String },
-    address: { type: String },
-    avatar: { type: String },
+    fullName: { type: String, default: "" },
+    isAdmin: { type: Boolean, default: false },
+    email: { type: String, default: "" },
+    address: { type: String, default: "" },
+    avatar: { type: String, avatar: "" },
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
   },
   {

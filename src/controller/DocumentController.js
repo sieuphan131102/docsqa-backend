@@ -89,7 +89,7 @@ const deleteDocument = async (req, res) => {
       _id: docId,
     });
     if (checkDoc === null) {
-      resolve({
+      return res.status(200).json({
         status: "ERROR",
         message: "The document is not existed",
       });

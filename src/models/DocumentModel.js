@@ -10,6 +10,8 @@ const documentSchema = new mongoose.Schema(
     description: { type: String, required: true },
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
     down: { type: Number, default: 0 },
+    view: { type: Number, default: 0 },
+    price: { type: Number, default: 0 },
   },
   {
     timestamps: true,
