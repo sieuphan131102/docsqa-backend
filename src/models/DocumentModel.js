@@ -6,7 +6,11 @@ const documentSchema = new mongoose.Schema(
     author: { type: String, required: true },
     image: { type: String, required: true },
     data: { type: String, required: true },
-    type: { type: String, required: true },
+    type: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
+    },
     description: { type: String, required: true },
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
     down: { type: Number, default: 0 },

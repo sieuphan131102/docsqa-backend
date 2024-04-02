@@ -1,9 +1,11 @@
+const Category = require("../models/Category");
 const Document = require("../models/DocumentModel");
 const Review = require("../models/ReviewModel");
 const User = require("../models/UserModel");
 
 const createDocument = (newDoc) => {
-  const { title, author, image, type, description, data, down } = newDoc;
+  const { title, author, image, type, description, data, down, view, price } =
+    newDoc;
   return new Promise(async (resolve, reject) => {
     try {
       const checkDoc = await Document.findOne({
@@ -15,6 +17,15 @@ const createDocument = (newDoc) => {
           message: "The document already existed",
         });
       }
+      const category = await Category.findOne({
+        _id: type,
+      });
+      if (!category) {
+        resolve({
+          status: "ERROR",
+          message: "The category not existed",
+        });
+      }
       const createdDoc = await Document.create({
         title,
         author,
@@ -23,6 +34,8 @@ const createDocument = (newDoc) => {
         description,
         data,
         down,
+        view,
+        price,
       });
       if (createdDoc) {
         resolve({
@@ -106,7 +119,8 @@ const getAll = (page = 1, limit, type, title, sortBy) => {
         .sort(sortOptions)
         .limit(Number(limit))
         .skip(startIndex)
-        .populate("reviews");
+        .populate("reviews")
+        .populate("type");
 
       const totalDocs = await Document.countDocuments(query);
 
@@ -128,7 +142,7 @@ const getOneDocument = (id) => {
     try {
       const doc = await Document.findOne({
         _id: id,
-      });
+      }).populate("type");
       if (doc === null) {
         resolve({
           status: "ERROR",
