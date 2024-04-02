@@ -3,6 +3,72 @@ const JwtService = require("../services/JwtService");
 const User = require("../models/UserModel");
 const fs = require("fs");
 
+const getHistory = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const user = await User.findById(userId).populate("readingHistory.bookId");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user.readingHistory);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const history = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const { bookId } = req.body;
+
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: userId },
+      { $push: { readingHistory: { bookId } } },
+      { new: true }
+    );
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(updatedUser);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const getPayments = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const user = await User.findById(userId).populate("paymentHistory.bookId");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user.paymentHistory);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
+const payment = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const { bookId } = req.body;
+
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: userId },
+      { $push: { paymentHistory: { bookId } } },
+      { new: true }
+    );
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(updatedUser);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+
 const createUser = async (req, res) => {
   try {
     const { userName, password, confirmPassword } = req.body;
@@ -172,4 +238,8 @@ module.exports = {
   getAll,
   getUser,
   refreshToken,
+  payment,
+  getPayments,
+  history,
+  getHistory,
 };

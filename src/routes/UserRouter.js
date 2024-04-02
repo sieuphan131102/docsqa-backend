@@ -24,7 +24,12 @@ router.put(
 );
 router.delete("/delete/:id", authToken, userController.deleteUser);
 router.get("/all", authToken, userController.getAll);
-router.get("/get/:id", authUserToken, userController.getUser);
+router.get("/get/:id", userController.getUser);
 router.post("/refresh-token", userController.refreshToken);
+
+router.post("/payment/:userId", userController.payment);
+router.get("/payment/get/:userId", userController.getPayments);
+router.post("/history/:userId", userController.history);
+router.get("/history/get/:userId", userController.getHistory);
 
 module.exports = router;

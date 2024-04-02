@@ -137,7 +137,7 @@ const getOneDocument = (id) => {
       }
       resolve({
         status: "OK",
-        message: "Get all documents SUCCESS",
+        message: "Get document SUCCESS",
         data: doc,
       });
     } catch (e) {

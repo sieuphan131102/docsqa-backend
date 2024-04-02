@@ -8,8 +8,21 @@ const userSchema = new mongoose.Schema(
     isAdmin: { type: Boolean, default: false },
     email: { type: String, default: "" },
     address: { type: String, default: "" },
-    avatar: { type: String, avatar: "" },
+    avatar: { type: String, default: "" },
+    coin: { type: Number, default: 0 },
     reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
+    readingHistory: [
+      {
+        bookId: { type: mongoose.Schema.Types.ObjectId, ref: "Document" },
+        date: { type: Date, default: Date.now },
+      },
+    ],
+    paymentHistory: [
+      {
+        bookId: { type: mongoose.Schema.Types.ObjectId, ref: "Document" },
+        date: { type: Date, default: Date.now },
+      },
+    ],
   },
   {
     timestamps: true,
