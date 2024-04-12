@@ -110,7 +110,7 @@ const getAll = (page = 1, limit, type, title, sortBy) => {
 
       const sortOptions = {};
       if (sortBy) {
-        sortOptions[sortBy] = 1;
+        sortOptions[sortBy] = -1;
       }
 
       const startIndex = (page - 1) * limit;
